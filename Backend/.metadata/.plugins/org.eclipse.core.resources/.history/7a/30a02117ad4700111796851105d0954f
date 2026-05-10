@@ -1,0 +1,5 @@
+package com.college.protocolapp.repository;
+
+public interface TimetableRepository {
+
+}

@@ -1,0 +1,74 @@
+  package com.college.protocolapp.controller;
+
+import com.college.protocolapp.model.Category;
+import com.college.protocolapp.model.Rule;
+import com.college.protocolapp.repository.CategoryRepository;
+import com.college.protocolapp.repository.RuleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/rules")
+@CrossOrigin
+public class RuleController {
+
+    @Autowired
+    private RuleRepository ruleRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    // Get all rules
+    @GetMapping
+    public List<Rule> getAllRules() {
+        return ruleRepository.findAll();
+    }
+
+    // Get rules by category (IMPORTANT for UI pages)
+    @GetMapping("/categories/{categoryId}")
+    public List<Rule> getRulesByCategory(@PathVariable Long categoryId) {
+        return ruleRepository.findByCategoryId(categoryId);
+    }
+
+    // Get single rule
+    @GetMapping("/{id}")
+    public Rule getRuleById(@PathVariable Long id) {
+        return ruleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rule not found"));
+    }
+
+    // Create rule under category
+    @PostMapping("/categories/{categoryId}")
+    public Rule createRule(@PathVariable Long categoryId,
+                           @RequestBody Rule rule) {
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        rule.setCategory(category);
+        return ruleRepository.save(rule);
+    }
+
+    // Update rule
+    @PutMapping("/{id}")
+    public Rule updateRule(@PathVariable Long id,
+                           @RequestBody Rule updated) {
+
+        Rule rule = ruleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rule not found"));
+
+        rule.setTitle(updated.getTitle());
+        rule.setDescription(updated.getDescription());
+
+        return ruleRepository.save(rule);
+    }
+
+    // Delete rule
+    @DeleteMapping("/{id}")
+    public String deleteRule(@PathVariable Long id) {
+        ruleRepository.deleteById(id);
+        return "Rule deleted successfully";
+    }
+}
